@@ -1,0 +1,362 @@
+/* Crazy, modern, animated login page CSS
+   Updated: higher specificity and overrides so this stylesheet wins over bootstrap/other libs.
+   File: src/styles/logincray.css
+   Replace the old file with this content.
+*/
+:root {
+  --bg-1: #0f172a;
+  --bg-2: #0b1020;
+  --accent-1: #7c3aed;
+  --accent-2: #06b6d4;
+  --glass: rgba(255, 255, 255, 0.06);
+  --muted: rgba(255, 255, 255, 0.75);
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(
+      circle at 10% 20%,
+      rgba(124, 58, 237, 0.12),
+      transparent 10%
+    ),
+    radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08), transparent 12%),
+    linear-gradient(120deg, var(--bg-1), var(--bg-2));
+  overflow-x: hidden;
+}
+
+/* Floating blobs - scope specifically to .public > .login to avoid global conflicts */
+.public > .login::before,
+.public > .login::after {
+  content: "";
+  position: fixed;
+  width: 520px;
+  height: 520px;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.public > .login::before {
+  top: -120px;
+  right: -120px;
+  background: linear-gradient(45deg, var(--accent-1), rgba(124, 58, 237, 0.6));
+  transform: rotate(25deg);
+  animation: float1 9s ease-in-out infinite;
+}
+.public > .login::after {
+  left: -160px;
+  top: 40%;
+  background: linear-gradient(45deg, var(--accent-2), rgba(6, 182, 212, 0.6));
+  transform: rotate(-15deg);
+  animation: float2 12s ease-in-out infinite;
+}
+@keyframes float1 {
+  0% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+  50% {
+    transform: translateY(30px) rotate(6deg) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+@keyframes float2 {
+  0% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+  50% {
+    transform: translateY(-40px) rotate(-8deg) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+/* center layout */
+.public {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 48px 20px;
+  z-index: 1;
+}
+
+/* make the login container more specific so it overrides other libs */
+.public .login.login-main {
+  width: 440px;
+  max-width: 94%;
+  padding: 36px;
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.02)
+  );
+  box-shadow: 0 10px 40px rgba(2, 6, 23, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px) saturate(120%);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Header gradient text */
+.public .login.login-main center {
+  display: block;
+  margin-bottom: 18px;
+  color: transparent;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* form layout */
+.public .login .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 3;
+}
+
+/* stronger selector to beat bootstrap's .form-control etc. */
+.public .login .form__input,
+.public .login input.form__input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  ) !important;
+  color: var(--muted) !important;
+  outline: none;
+  font-size: 16px;
+  transition: box-shadow 0.25s ease, transform 0.18s ease,
+    border-color 0.18s ease;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45) !important;
+}
+.public .login .form__input::placeholder {
+  color: rgba(255, 255, 255, 0.28) !important;
+}
+.public .login .form__input:focus {
+  transform: translateY(-2px);
+  border-color: rgba(124, 58, 237, 0.95) !important;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.08) !important,
+    0 0 18px rgba(124, 58, 237, 0.06) inset !important;
+}
+
+/* labels */
+.public .login label {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 14px;
+}
+
+/* submit button — increase specificity and respect inline blue but add glow */
+.public .login .form__submit-button {
+  margin-top: 6px;
+  border-radius: 999px;
+  border: none !important;
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 18px rgba(0, 0, 0, 0.25) inset !important;
+  position: relative;
+}
+.public .login .form__submit-button:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* If other .btn rules override, force our pill style */
+.public .login .btn.btn-danger {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(220, 38, 38, 0.95),
+    rgba(185, 28, 28, 0.95)
+  ) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  border: none !important;
+  box-shadow: 0 6px 18px rgba(185, 28, 28, 0.18) !important;
+}
+
+/* checkbox style */
+.public .login .form__uo {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+}
+.public .login .form__checkbox {
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  display: inline-grid;
+  place-items: center;
+  transition: all 0.15s ease;
+}
+.public .login .form__checkbox:checked {
+  background: linear-gradient(
+    90deg,
+    var(--accent-1),
+    var(--accent-2)
+  ) !important;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.18) !important;
+  border-color: rgba(124, 58, 237, 0.95) !important;
+}
+.public .login .form__checkbox:checked::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* error message */
+.public .login .errmsg {
+  color: #ffb4b4;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-left: 4px solid rgba(255, 0, 0, 0.8);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  animation: shake 0.45s ease;
+}
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* overlay grid and sparkles */
+.public .login.login-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: linear-gradient(
+      transparent 24px,
+      rgba(255, 255, 255, 0.008) 25px
+    ),
+    linear-gradient(90deg, transparent 24px, rgba(255, 255, 255, 0.008) 25px);
+  background-size: 50px 50px, 50px 50px;
+  pointer-events: none;
+  opacity: 0.7;
+  mix-blend-mode: overlay;
+}
+.public .login.login-main .sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  top: 10%;
+  left: 20%;
+  opacity: 0;
+  animation: sparkle 3s linear infinite;
+  z-index: 4;
+}
+.public .login.login-main .sparkle.s2 {
+  top: 68%;
+  left: 12%;
+  animation-delay: 0.6s;
+}
+.public .login.login-main .sparkle.s3 {
+  top: 36%;
+  left: 82%;
+  animation-delay: 1.2s;
+}
+@keyframes sparkle {
+  from {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* responsive tweaks */
+@media (max-width: 480px) {
+  .public .login.login-main {
+    padding: 20px;
+    border-radius: 14px;
+  }
+  .public .login .form__input {
+    padding: 12px;
+  }
+  .public .login .form__submit-button {
+    width: 90px;
+    height: 42px;
+  }
+}
+
+/* Helpful debug helper: add a faint outline if you still can't see elements (remove after fix) */
+.public .login * {
+  outline: 0px solid rgba(255, 255, 255, 0.04);
+}
+.public .login .btn-create-account {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 22px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+  color: #fff !important;
+  text-decoration: none !important;
+  border: none !important;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.13);
+  letter-spacing: 0.5px;
+  transition: background 0.16s, transform 0.12s;
+}
+.public .login .btn-create-account:hover {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  transform: translateY(-2px) scale(1.03);
+}
