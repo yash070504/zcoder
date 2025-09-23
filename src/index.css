@@ -1,0 +1,222 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+  background: #EDF4D3;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.75em;
+  max-width: 800px;
+}
+
+.form__checkbox-container {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: 0.5em;
+}
+
+.form__persist {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.5em;
+}
+
+.form__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form__input,
+.form__submit-button {
+  padding: 0.5em;
+  border-radius: 15px;
+}
+
+.form__input--text {
+  min-height: 150px;
+}
+
+.form__input--incomplete {
+  border: 1px solid red;
+  outline: 1px solid red;
+}
+
+
+.form__checkbox {
+  width: 24px;
+  height: 24px;
+}
+
+.form__select {
+  width: fit-content;
+  padding: 0.25em;
+}
+
+.form__action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5em;
+  position: absolute;
+  right: 0.5em;
+}
+
+.form__row {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 2em;
+}
+
+.form__divider {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5em;
+}
+
+.btn1{
+  display: flex;
+  flex-direction: column-reverse;
+  align-content: end;
+  font-size: 17px;
+   width : 150px;
+   height :35px ;
+   margin-left: 30px;
+   margin-bottom: 18px;
+   padding-top: 5px;
+}
+
+.public-div{
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-header{
+   padding-left: 43vw;
+}
+.login-main{
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ padding-bottom: 130px;
+  
+}
+.login-form{
+     width: 400px;
+}
+.login1-form{
+  padding: 40px;
+  background-color: rgb(181, 216, 216);
+  width: 700px;
+  border-radius: 12px;
+  box-shadow: 10px 10px 5px grey;
+}
+.promblem-card{
+  width: 350px;
+  padding: 10px;
+  margin: 6px;
+  border-radius: 13px;
+ display: inline-block;
+ background-color: rgb(190, 187, 229);
+ border-style: none !important;
+}
+
+.hero-image img {
+  height: 100px;
+  width: 95% !important;
+  height: auto;
+  border-radius: 10px;
+  height: 450px !important;
+}
+
+
+.contest-calendar{
+  max-width: 500px;
+}
+
+.dash-calender{
+  margin-top: 100vh;
+ 
+}
+
+
+.community-div{
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.community-span{
+   width: max-content;
+   background-color: rgb(168, 75, 221);
+   color: rgb(255, 255, 255);
+   margin: 10px;
+   border-radius: 12px;
+   padding: 5px;
+}
+
+.community-content{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.community-tag{
+        
+        margin-right: 5px;
+        font-weight: lighter;
+}
+.card{
+   background-color: rgb(237, 221, 221) !important;
+}
+.community-card{
+  padding: 7px;
+  flex: 1 1 auto;
+  color: grey ;
+  margin: 5px;
+} 
+.community-header{
+  margin-right: 23px;
+  color: rgb(255, 255, 255);
+}
+.communities-header{
+   margin-bottom: 250px;
+}
+.community-card-head{
+  display: flex;
+  flex-direction: row;
+
+  justify-content: space-between;
+}
+.community-comment{
+   padding: 3px;
+  border-radius: 12px;
+  background-color: rgb(135, 132, 177);
+  margin: 3px;
+}
+.newuser-form{
+  background-color: bisque;
+   max-width: 60vw;
+}
+.extra-card{
+  background-color: rgb(194, 193, 224) !important;
+}
+.contest-calendar {
+  color: whitesmoke !important;
+  width: 80%;
+  max-width: 730px !important;
+  background-color: #1f2024;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} */
