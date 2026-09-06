@@ -90,7 +90,22 @@ const commentOnPost = asyncHandler(async (req, res) => {
   if (comment) {
     post.comments.push(comment);
     await post.save();
-    return res.status(201).json({ message: "Comment is Added", comment });
+
+    let authorUsername = "Author";
+    if (post.user) {
+      const authorUser = await User.findById(post.user).select('username').lean().exec();
+      if (authorUser?.username) {
+        authorUsername = authorUser.username;
+      }
+    }
+
+    return res.status(201).json({ 
+      message: "Comment is Added", 
+      comment,
+      authorUsername,
+      postTitle: post.title,
+      commenter: user.username
+    });
   } else {
     return res.status(400).json({ message: "Failed to add comment" });
   }
