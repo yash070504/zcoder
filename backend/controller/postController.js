@@ -1,10 +1,12 @@
 const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose");
 const User = require('../model/User');
 const Post = require("../model/Post");
 const Comment = require("../model/Comment");
 
 const getAllPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find({}).lean().exec();
+  // Sort with latest posts at the top
+  const posts = await Post.find({}).sort({ _id: -1 }).lean().exec();
   if (!posts?.length) {
     return res.status(200).json([]);
   }
@@ -13,7 +15,13 @@ const getAllPosts = asyncHandler(async (req, res) => {
     let username = 'Anonymous';
     let authorAvatar = '';
     if (post.user) {
-      const user = await User.findById(post.user).select('username profileUrl').lean().exec();
+      let user = null;
+      if (mongoose.Types.ObjectId.isValid(post.user)) {
+        user = await User.findById(post.user).select('username profileUrl').lean().exec();
+      }
+      if (!user) {
+        user = await User.findOne({ username: post.user }).select('username profileUrl').lean().exec();
+      }
       if (user?.username) {
         username = user.username;
         authorAvatar = user.profileUrl || '';
@@ -27,7 +35,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
       comments: post.comments || [],
       __v: post.__v,
       username,
-      authorAvatar
+      authorAvatar,
+      createdAt: post.createdAt || post._id.getTimestamp()
     };
   }));
 
@@ -36,14 +45,27 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, body, user, tags, comments } = req.body;
-  if (!title || !body || !user) {
-    return res.status(400).json({ message: "Title, body, and user are required" });
+  if (!title || !body) {
+    return res.status(400).json({ message: "Title and body are required" });
+  }
+
+  let resolvedUserId = user;
+  if (!resolvedUserId || !mongoose.Types.ObjectId.isValid(resolvedUserId)) {
+    const lookupName = user || req.user;
+    if (lookupName) {
+      const userDoc = await User.findOne({ username: lookupName }).exec();
+      if (userDoc) resolvedUserId = userDoc._id;
+    }
+  }
+
+  if (!resolvedUserId) {
+    return res.status(400).json({ message: "A valid user ID or username is required" });
   }
 
   const post = await Post.create({
     title,
     body,
-    user,
+    user: resolvedUserId,
     tags: tags || [],
     comments: comments || []
   });
@@ -56,16 +78,42 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const getPost = asyncHandler(async (req, res) => {
-  const { postId } = req.body;
+  const postId = req.params?.id || req.query?.id || req.body?.postId;
   if (!postId) {
     return res.status(400).json({ message: "postId is required" });
   }
 
-  const post = await Post.findById(postId).exec();
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(400).json({ message: "Invalid post ID" });
+  }
+
+  const post = await Post.findById(postId).lean().exec();
   if (!post) {
     return res.status(404).json({ message: "No Post Found" });
   }
-  res.json(post);
+
+  let username = 'Anonymous';
+  let authorAvatar = '';
+  if (post.user) {
+    let user = null;
+    if (mongoose.Types.ObjectId.isValid(post.user)) {
+      user = await User.findById(post.user).select('username profileUrl').lean().exec();
+    }
+    if (!user) {
+      user = await User.findOne({ username: post.user }).select('username profileUrl').lean().exec();
+    }
+    if (user?.username) {
+      username = user.username;
+      authorAvatar = user.profileUrl || '';
+    }
+  }
+
+  res.json({
+    ...post,
+    username,
+    authorAvatar,
+    createdAt: post.createdAt || post._id.getTimestamp()
+  });
 });
 
 const commentOnPost = asyncHandler(async (req, res) => {
