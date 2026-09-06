@@ -43,8 +43,8 @@ const createNewUser = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
   const { id, username, password, email, profileUrl } = req.body;
 
-  if (!username || !id || !email || !profileUrl) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!id) {
+    return res.status(400).json({ message: "User ID is required" });
   }
 
   const user = await User.findById(id).exec();
@@ -52,22 +52,32 @@ const updateUser = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  // Check for duplicate username with other users
-  const duplicate = await User.findOne({ username }).collation({ locale: 'en', strength: 2 }).lean().exec();
-  if (duplicate && duplicate?._id.toString() !== id) {
-    return res.status(409).json({ message: 'Duplicate username' });
+  // Check for duplicate username with other users if username is changing
+  if (username && username !== user.username) {
+    const duplicate = await User.findOne({ username }).collation({ locale: 'en', strength: 2 }).lean().exec();
+    if (duplicate && duplicate._id.toString() !== id) {
+      return res.status(409).json({ message: 'Duplicate username' });
+    }
+    user.username = username;
   }
 
-  user.username = username;
-  user.email = email;
-  user.profileUrl = profileUrl;
+  if (email) user.email = email;
+  if (profileUrl) user.profileUrl = profileUrl;
 
-  if (password) {
+  if (password && password.trim()) {
     user.password = await bcrypt.hash(password, 10);
   }
 
   const updatedUser = await user.save();
-  res.json({ message: `${updatedUser.username} updated` });
+  res.json({ 
+    message: `${updatedUser.username} profile updated successfully`,
+    user: {
+      id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      profileUrl: updatedUser.profileUrl
+    }
+  });
 });
 
 const deleteUser = asyncHandler(async (req, res) => {

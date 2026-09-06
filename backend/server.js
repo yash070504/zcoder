@@ -17,6 +17,7 @@ const promblemRouter = require("./routes/promblemRouter");
 const authRouter = require("./routes/authRouter");
 const postRouter = require("./routes/postRouter");
 const commentRouter = require("./routes/commentRouter");
+const codeRouter = require("./routes/codeRouter");
 
 // Connect to MongoDB in background
 connectdb();
@@ -29,6 +30,10 @@ app.use(cookieParser());
 // Static routes & page serving
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/", router);
+
+// Code execution endpoint (fast native compiler/runner)
+app.use("/execute", codeRouter);
+app.use("/api/execute", codeRouter);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
