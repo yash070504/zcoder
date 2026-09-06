@@ -79,8 +79,10 @@ const deletePromblem = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Promblem not found' });
   }
 
-  const result = await promblem.deleteOne();
-  const reply = `Promblem '${result.title}' with ID ${result._id} deleted`;
+  const title = promblem.title;
+  const promblemId = promblem._id;
+  await promblem.deleteOne();
+  const reply = `Promblem '${title}' with ID ${promblemId} deleted`;
   res.json({ message: reply });
 });
 

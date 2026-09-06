@@ -119,8 +119,10 @@ const deletePost = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Post not found' });
   }
 
-  const result = await post.deleteOne();
-  const reply = `Post '${result.title}' with ID ${result._id} deleted`;
+  const title = post.title;
+  const postId = post._id;
+  await post.deleteOne();
+  const reply = `Post '${title}' with ID ${postId} deleted`;
   res.json({ message: reply });
 });
 
