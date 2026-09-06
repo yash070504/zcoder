@@ -15,8 +15,8 @@ email : {
   required : true ,
 },
 profileUrl : {
-  type : String ,
-  required : true
+  type : String,
+  default: "https://cdn-icons-png.flaticon.com/512/149/149071.png"
 }
 })
 

@@ -1,25 +1,26 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
 const verifyJWT = (req, res, next) => {
-    const authHeader = req.headers.authorization || req.headers.Authorization
-   console.log(authHeader.split(' ')[1])
-    if (!authHeader?.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Unauthorized' })
-    }
-    
+    const authHeader = req.headers.authorization || req.headers.Authorization;
 
-    const token = authHeader.split(' ')[1]
-     
+    if (!authHeader?.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
     jwt.verify(
         token,
-        process.env.ACCESS_TOKEN_SECRET,
+        process.env.ACCESS_TOKEN_SECRET || 'yashkumar070504',
         (err, decoded) => {
-            if (err) return res.status(403).json({ message: 'Forbidden' })
-            req.user = decoded.UserInfo.username
-            next()
+            if (err) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+            req.user = decoded?.UserInfo?.username || decoded?.username;
+            next();
         }
-    )
-}
+    );
+};
 
-module.exports = verifyJWT 
+module.exports = verifyJWT;
