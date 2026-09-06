@@ -1,7 +1,27 @@
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const { exec, spawn } = require("child_process");
+// ═══════════════════════════════════════════════════════════
+// codeController.js — Server-side Code Execution Engine
+// Route: POST /execute or POST /api/execute
+//
+// How it works:
+//   1. Receives { language, sourceCode } in request body
+//   2. Creates a unique temp directory for each execution
+//   3. Writes the source code to a file in that temp dir
+//   4. Runs the appropriate compiler/interpreter as a child process:
+//       - JavaScript → node solution.js
+//       - Python     → python solution.py
+//       - C/C++      → g++ compile then run .exe
+//       - Java       → javac compile then java run
+//   5. Returns { run: { output, stdout, stderr } } to frontend
+//   6. Cleans up temp directory after each execution
+//
+// Security: Timeout of 6 seconds prevents infinite loops
+// ═══════════════════════════════════════════════════════════
+
+const fs = require("fs");                    // File system to create/write/delete temp files
+const path = require("path");                // Build file paths across OS
+const os = require("os");                    // Get OS temp directory path
+const { exec, spawn } = require("child_process"); // Run system commands (node, python, g++)
+
 
 const executeCode = async (req, res) => {
   const { language = "javascript", sourceCode = "", stdin = "" } = req.body;

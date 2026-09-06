@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════
+// Comment.js — Standalone MongoDB Model for Post Comments
+// Note: Post.js also has a commentSchema embedded inside it.
+// This model is used when fetching or creating comments as independent documents.
+// Collection name: 'comments'
+// ═══════════════════════════════════════════════════════════
 const mongoose = require("mongoose")
 
 

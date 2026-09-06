@@ -1,6 +1,18 @@
+// ═══════════════════════════════════════════════════════════
+// userController.js — Handles all User CRUD operations
+// Routes that use these: /user (see userRouter.js)
+//
+// Functions:
+//   getAllUser     → GET  /user   (protected) — returns all users
+//   createNewUser → POST /user   (public)    — register a new account
+//   updateUser    → PATCH /user  (protected) — edit profile
+//   deleteUser    → DELETE /user (protected) — remove account
+// ═══════════════════════════════════════════════════════════
+
 const User = require('../model/User');
-const bcrypt = require('bcrypt');
-const asyncHandler = require("express-async-handler");
+const bcrypt = require('bcrypt');                        // For hashing new passwords on update
+const asyncHandler = require("express-async-handler");   // Auto-catches async errors
+
 
 const getAllUser = asyncHandler(async (req, res) => {
   const users = await User.find({}).select('-password').lean();

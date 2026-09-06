@@ -1,3 +1,17 @@
+// ═══════════════════════════════════════════════════════════
+// postController.js — Community Forum Post Operations
+// Routes: /post (see postRouter.js)
+//
+// Functions:
+//   getAllPosts   → GET /post        — fetch all posts (with author info)
+//   createPost   → POST /post       — create a new forum post (protected)
+//   getPost      → GET /post/one/:id — fetch single post by ID
+//   commentOnPost → POST /post/comment — add a comment to a post (protected)
+//   getComment   → GET /post/comment  — fetch comments for a post
+//   deletePost   → DELETE /post     — delete a post (protected)
+//   likePost     → POST /post/like  — toggle like on a post (protected)
+// ═══════════════════════════════════════════════════════════
+
 const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
 const User = require('../model/User');
