@@ -59,12 +59,13 @@
   - **Studio Sidebar**: Interactive difficulty toggle buttons with glowing color badges, test case URL integration (LeetCode, Codeforces), and a live card mockup preview.
 
 ### 💬 4. Real-Time Community Forum
-- **Live Auto-Synchronization**: Background auto-polling (every 3s) and RTK Query tag invalidation (`Post`, `Comment`) ensure new posts and replies appear instantly without page refreshing.
+- **Live Auto-Synchronization**: Background auto-polling (every 3s) and RTK Query tag invalidation (`Post`, `Comment`) ensure new posts, likes, and replies appear instantly across all logged-in accounts without page refreshing.
+- **Cross-Account Synchronized Likes**: Upvotes and helpful hearts (`❤️ Like`) are persisted directly to MongoDB (`likes` array). Like counts and heart states immediately reflect across all devices and accounts.
+- **Real-Time Author Notifications**: Whenever another developer likes or comments on your post, live alert toasts (`❤️ @username liked your post!` / `💬 @username commented on your post!`) notify the author instantly.
+- **Guest Access & Action Safeguards**: Anonymous/guest users can freely view discussions and shared permalinks. When a guest attempts to like or reply, intuitive prompts guide them to **Sign In** or **Create a new account** without crashing or throwing unhandled errors.
 - **Deep Search Across Posts & Specific Comments**: Search queries match across post titles, bodies, authors, tags, and **specific discussion comments**, with comment match badges and auto-expansion.
 - **Universal Share Permalinks**: One-click `🔗 Share` button copies direct permalinks (`/community?post=<id>`). **Both logged-in and guest users** can view shared posts with smooth scroll-into-view and glowing focus highlights.
-- **Author Comment Notifications**: Instant alert toasts (`💬 Comment posted! Notified @author on "title"`) keep developers engaged.
 - **Dynamic Tag Filter Pills**: Quick-filter by tags with active post count badges.
-- **Interactive Reactions & Copying**: Upvote helpful posts with the `❤️ Like` reaction counter and copy post snippets with a single click.
 - **Clickable Developer Profiles**: Every author and commenter badge links directly to their public overview.
 
 ### 🏆 5. Multi-Platform Contest Radar
@@ -244,6 +245,7 @@ Z-Coder/
 | `GET` | `/post/one/:id` | Fetch specific discussion by ID for permalinks | **Public** |
 | `POST` | `/post` | Create a new community discussion | Protected |
 | `DELETE` | `/post` | Delete post (Author only) | Protected |
+| `POST` | `/post/like` | Toggle upvote/like on a post (synchronizes across accounts) | Protected |
 | `GET` | `/post/comment` | Retrieve comments for a post | **Public** |
 | `POST` | `/post/comment` | Add comment & trigger author notification | Protected |
 

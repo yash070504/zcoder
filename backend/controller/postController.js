@@ -33,6 +33,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
       body: post.body,
       tags: post.tags || [],
       comments: post.comments || [],
+      likes: post.likes || [],
+      likesCount: (post.likes || []).length,
       __v: post.__v,
       username,
       authorAvatar,
@@ -110,6 +112,8 @@ const getPost = asyncHandler(async (req, res) => {
 
   res.json({
     ...post,
+    likes: post.likes || [],
+    likesCount: (post.likes || []).length,
     username,
     authorAvatar,
     createdAt: post.createdAt || post._id.getTimestamp()
@@ -192,11 +196,67 @@ const deletePost = asyncHandler(async (req, res) => {
   res.json({ message: reply });
 });
 
+const likePost = asyncHandler(async (req, res) => {
+  const { postId, username } = req.body;
+  const actingUsername = username || req.user;
+
+  if (!postId || !actingUsername) {
+    return res.status(400).json({ message: "postId and username are required" });
+  }
+
+  const post = await Post.findById(postId).exec();
+  if (!post) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  if (!Array.isArray(post.likes)) {
+    post.likes = [];
+  }
+
+  const index = post.likes.indexOf(actingUsername);
+  let isLiked = false;
+  if (index === -1) {
+    post.likes.push(actingUsername);
+    isLiked = true;
+  } else {
+    post.likes.splice(index, 1);
+    isLiked = false;
+  }
+
+  await post.save();
+
+  let authorUsername = "Author";
+  if (post.user) {
+    let authorUser = null;
+    if (mongoose.Types.ObjectId.isValid(post.user)) {
+      authorUser = await User.findById(post.user).select('username').lean().exec();
+    }
+    if (!authorUser) {
+      authorUser = await User.findOne({ username: post.user }).select('username').lean().exec();
+    }
+    if (authorUser?.username) {
+      authorUsername = authorUser.username;
+    }
+  }
+
+  res.json({
+    message: isLiked ? "Post liked" : "Post unliked",
+    postId: post._id,
+    likes: post.likes,
+    likesCount: post.likes.length,
+    isLiked,
+    likedBy: actingUsername,
+    authorUsername,
+    postTitle: post.title
+  });
+});
+
 module.exports = {
   getAllPosts,
   createPost,
   getPost,
   commentOnPost,
   getComment,
-  deletePost
+  deletePost,
+  likePost
 };

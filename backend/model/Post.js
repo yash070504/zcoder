@@ -37,6 +37,9 @@ const postSchema = new mongoose.Schema({
    tags : {
      type : Array 
    },
+   likes: [{
+     type: String
+   }],
    comments: [{
     type: commentSchema, 
    
