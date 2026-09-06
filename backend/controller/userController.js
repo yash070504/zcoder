@@ -28,7 +28,7 @@ const createNewUser = asyncHandler(async (req, res) => {
     username,
     password: hashedPwd,
     email,
-    profileUrl: profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+    profileUrl: (profileUrl && !profileUrl.includes("flaticon")) ? profileUrl : ""
   };
 
   const newUser = await User.create(userObject);
