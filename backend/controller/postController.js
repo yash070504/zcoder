@@ -11,10 +11,12 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
   const postWithUsername = await Promise.all(posts.map(async (post) => {
     let username = 'Anonymous';
+    let authorAvatar = '';
     if (post.user) {
-      const user = await User.findById(post.user).select('username').lean().exec();
+      const user = await User.findById(post.user).select('username profileUrl').lean().exec();
       if (user?.username) {
         username = user.username;
+        authorAvatar = user.profileUrl || '';
       }
     }
     return {
@@ -24,7 +26,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
       tags: post.tags || [],
       comments: post.comments || [],
       __v: post.__v,
-      username
+      username,
+      authorAvatar
     };
   }));
 
