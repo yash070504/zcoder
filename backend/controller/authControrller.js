@@ -31,7 +31,7 @@ const login = asyncHandler(async (req, res) => {
       }
     },
     ACCESS_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: '30d' }
   );
 
   const refreshToken = jwt.sign(
@@ -39,7 +39,7 @@ const login = asyncHandler(async (req, res) => {
       "username": foundUser.username,
     },
     REFRESH_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '30d' }
   );
 
   const isProduction = process.env.NODE_ENV === 'production';
@@ -48,7 +48,7 @@ const login = asyncHandler(async (req, res) => {
     httpOnly: true, // accessible only by web server
     secure: isProduction, // HTTPS only in production
     sameSite: isProduction ? 'None' : 'Lax', // Lax for local development
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   });
 
   res.json({ accessToken });
@@ -79,7 +79,7 @@ const refresh = (req, res) => {
           }
         },
         ACCESS_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '30d' }
       );
 
       res.json({ accessToken });

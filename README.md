@@ -33,8 +33,12 @@
 ### ⚡ 1. Cybernetic Arena Command Center (Dashboard)
 - **Dynamic Coder HUD**: Displays user avatar with live online status, customizable rank tiers (e.g. `Level 5 Coder`), and active streak counters (`🔥 5-Day Streak`, `1,480 Elo`).
 - **Daily Challenge Quest**: Automatic daily featured problem card showcasing difficulty pills (`Easy`, `Medium`, `Hard`), topic tags, and a direct `⚡ Solve in Playground` launch button.
-- **Arena Progression Tracker**: Live counts of arena problems and community discussions, accompanied by an animated glowing weekly practice goal progress bar.
-- **Rapid Launchpad**: High-density neon glass action keys for instant navigation to the Problem Library, Code Playground, Community Forum, and Challenge Creator.
+- **Spacious 2x2 Rapid Launchpad**: High-visibility neon glass action cards with generous gaps and micro-animations for instant navigation to:
+  - 📚 **Problem Library**: Filter by topic & difficulty
+  - ⚡ **Code Playground**: Run JS, Python & C++ with live output
+  - 💬 **Community Forum**: Live discussions & developer solutions
+  - ➕ **Contribute Problem**: Custom testcases and authoring
+- **Long-Lived 30-Day Sessions**: Extended 30-day token lifetime and device persistence with background silent re-authentication (`baseQueryWithReauth`) so developers never get repeatedly kicked to the login screen.
 
 ### 💻 2. In-Browser Code Playground
 - **Powered by Monaco Editor**: The same high-performance editor engine that powers Visual Studio Code.
@@ -221,8 +225,8 @@ Z-Coder/
 ### Authentication (`/auth`)
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
-| `POST` | `/auth` | User login (returns access token & refresh cookie) | Public |
-| `GET` | `/auth/refresh` | Generates a new access token using refresh token | Public |
+| `POST` | `/auth` | User login (returns 30-day access token & 30-day refresh cookie) | Public |
+| `GET` | `/auth/refresh` | Generates a new 30-day access token using refresh cookie | Public |
 | `POST` | `/auth/logout` | Clears authentication cookies & ends session | Public |
 
 ### Users (`/user`)
