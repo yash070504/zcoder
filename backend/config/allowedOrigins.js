@@ -7,7 +7,8 @@ const allowedOrigins = [
   'https://localhost:3500',
   'https://zcoder-frontend-11hv-mx18vrvc8-yash-kumars-projects-01acef68.vercel.app',
   'https://zcoder-frontend-11hv-oviiuv7nr-yash-kumars-projects-01acef68.vercel.app',
-  'https://zcoderbackendyash-api.onrender.com'
+  'https://zcoderbackendyash-api.onrender.com',
+  'https://zcoder-backend-o2ee.onrender.com'
 ];
 
 module.exports = allowedOrigins;
