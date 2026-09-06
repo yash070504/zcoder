@@ -15,8 +15,8 @@ email : {
   required : true ,
 },
 profileUrl : {
-  type : String ,
-  required : true
+  type : String,
+  default: ""
 }
 })
 

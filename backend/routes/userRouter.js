@@ -1,21 +1,21 @@
-const express  = require('express');
-const {getAllUser ,
+const express = require('express');
+const {
+  getAllUser,
   createNewUser,
-  updateUser ,  
-  deleteUser,}  = require('../controller/userController')
+  updateUser,
+  deleteUser,
+} = require('../controller/userController');
 const router = express.Router();
-const verifyJWT = require('../middleware/verifyJWT')
+const verifyJWT = require('../middleware/verifyJWT');
 
+// Public route: User registration
 router.route("/")
-   .post(createNewUser)
-   
+  .post(createNewUser);
 
-
+// Protected routes: Requires valid JWT token
 router.route("/")
-.get(getAllUser,verifyJWT)
-.patch(updateUser,verifyJWT)
-.delete(deleteUser,verifyJWT)
+  .get(verifyJWT, getAllUser)
+  .patch(verifyJWT, updateUser)
+  .delete(verifyJWT, deleteUser);
 
-
-
-module.exports = router ;
+module.exports = router;
