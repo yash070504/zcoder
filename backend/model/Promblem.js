@@ -31,13 +31,39 @@ const promblemSchema = new mongoose.Schema({
   // Test cases to validate solutions (stored as a string, e.g. JSON or plain text)
   testcase : {
    type : String,
-   required: true,
-},
+   required: false,
+   default: ""
+  },
+  // Structured Sample Test Cases (visible to candidate)
+  sampleTestCases: [
+    {
+      input: { type: String, default: "" },
+      expectedOutput: { type: String, default: "" },
+      explanation: { type: String, default: "" }
+    }
+  ],
+  // Structured Hidden Test Cases (evaluated upon official submission)
+  hiddenTestCases: [
+    {
+      input: { type: String, default: "" },
+      expectedOutput: { type: String, default: "" }
+    }
+  ],
+  // Resource Limits
+  timeLimitMs: {
+    type: Number,
+    default: 4000
+  },
+  memoryLimitMb: {
+    type: Number,
+    default: 256
+  },
   // The reference/correct solution for this problem
   solution:{
     type: String,
-    required: true,
-},
+    required: false,
+    default: ""
+  },
 },{
    timestamps: true // Automatically adds createdAt and updatedAt fields
 })
