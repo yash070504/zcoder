@@ -20,6 +20,33 @@ const {
 } = require("./sandboxRunner");
 
 /**
+ * Normalized LeetCode verdict mappings:
+ * AC  - Accepted
+ * WA  - Wrong Answer
+ * TLE - Time Limit Exceeded
+ * CE  - Compilation Error
+ * RE  - Runtime Error
+ * SV  - Security Violation
+ */
+const VERDICT_CODES = {
+  ACCEPTED: "AC",
+  WRONG_ANSWER: "WA",
+  TIME_LIMIT_EXCEEDED: "TLE",
+  COMPILATION_ERROR: "CE",
+  RUNTIME_ERROR: "RE",
+  SECURITY_VIOLATION: "SV"
+};
+
+const VERDICT_LABELS = {
+  AC: "Accepted",
+  WA: "Wrong Answer",
+  TLE: "Time Limit Exceeded",
+  CE: "Compilation Error",
+  RE: "Runtime Error",
+  SV: "Security Violation"
+};
+
+/**
  * Standardize output by trimming trailing whitespace and unifying line-endings.
  */
 function normalizeOutput(str) {
@@ -36,15 +63,19 @@ function normalizeOutput(str) {
 /**
  * Executes a full submission against testcases with live updates.
  */
-async function evaluateSubmission(job, onProgress) {
-  const { language, sourceCode, testcases = [] } = job;
+async function evaluateSubmission(job, onProgress = () => {}) {
+  const { language, sourceCode, testcases = [], timeLimitMs } = job;
   const lang = (language || "javascript").toLowerCase();
 
   // 1. Security Scan
   const secScan = scanCodeSecurity(sourceCode, lang);
   if (!secScan.safe) {
+    const verdict = "SECURITY_VIOLATION";
+    const verdictCode = VERDICT_CODES[verdict];
     return {
-      verdict: "SECURITY_VIOLATION",
+      verdict,
+      verdictCode,
+      verdictLabel: VERDICT_LABELS[verdictCode],
       passedCount: 0,
       totalCount: testcases.length,
       details: secScan.reason,
@@ -73,8 +104,12 @@ async function evaluateSubmission(job, onProgress) {
     const compiledInfo = await compileSource({ lang, sourceFile, tempDir });
 
     if (compiledInfo.success === false) {
+      const verdict = "COMPILATION_ERROR";
+      const verdictCode = VERDICT_CODES[verdict];
       return {
-        verdict: "COMPILATION_ERROR",
+        verdict,
+        verdictCode,
+        verdictLabel: VERDICT_LABELS[verdictCode],
         passedCount: 0,
         totalCount: testcases.length,
         compileError: compiledInfo.compileError,
@@ -85,7 +120,6 @@ async function evaluateSubmission(job, onProgress) {
     // 4. Testcase Loop
     const results = [];
     let totalExecTime = 0;
-    let maxMemory = 0;
     let finalVerdict = "ACCEPTED";
     let firstFailedCase = null;
 
@@ -96,13 +130,14 @@ async function evaluateSubmission(job, onProgress) {
         progress: { current: i + 1, total: testcases.length }
       });
 
+      const tcTimeout = tc.timeoutMs || timeLimitMs || 4000;
       const tcRun = await runIsolatedTestcase({
         lang,
         sourceFile,
         compiledInfo,
         tempDir,
         stdin: tc.input || "",
-        timeoutMs: tc.timeoutMs || 4000
+        timeoutMs: tcTimeout
       });
 
       totalExecTime += tcRun.executionTimeMs || 0;
@@ -120,15 +155,21 @@ async function evaluateSubmission(job, onProgress) {
         tcVerdict = "WRONG_ANSWER";
       }
 
+      const tcVerdictCode = VERDICT_CODES[tcVerdict] || tcVerdict;
+      const isHidden = !!tc.isHidden;
+
+      // Mask hidden test case payload to prevent leaking confidential test data
       const caseResult = {
         testCaseIndex: i + 1,
-        isHidden: !!tc.isHidden,
+        isHidden,
         verdict: tcVerdict,
+        verdictCode: tcVerdictCode,
+        verdictLabel: VERDICT_LABELS[tcVerdictCode] || tcVerdict,
         executionTimeMs: tcRun.executionTimeMs,
-        input: tc.isHidden ? "[Hidden]" : tc.input,
-        expectedOutput: tc.isHidden ? "[Hidden]" : (hasExpected ? tc.expectedOutput : "(Playground execution)"),
-        actualOutput: tc.isHidden && tcVerdict === "WRONG_ANSWER" ? "[Hidden]" : actual,
-        stderr: tcRun.stderr || null
+        input: isHidden ? "[Hidden]" : tc.input,
+        expectedOutput: isHidden ? "[Hidden]" : (hasExpected ? tc.expectedOutput : "(Playground execution)"),
+        actualOutput: isHidden ? (tcVerdict === "ACCEPTED" ? "[Hidden (Passed)]" : "[Hidden]") : actual,
+        stderr: isHidden ? (tcVerdict === "TIME_LIMIT_EXCEEDED" ? `Time Limit Exceeded (${tcTimeout}ms)` : null) : (tcRun.stderr || null)
       };
 
       results.push(caseResult);
@@ -138,16 +179,19 @@ async function evaluateSubmission(job, onProgress) {
         if (!firstFailedCase) {
           firstFailedCase = caseResult;
         }
-        // Stop evaluating remaining testcases if submission fails
+        // Stop evaluating remaining testcases if submission fails (standard competitive judge optimization)
         break;
       }
     }
 
+    const finalVerdictCode = VERDICT_CODES[finalVerdict] || finalVerdict;
     const passedCount = results.filter((r) => r.verdict === "ACCEPTED").length;
     const avgRuntime = results.length > 0 ? Math.round(totalExecTime / results.length) : 0;
 
     return {
       verdict: finalVerdict,
+      verdictCode: finalVerdictCode,
+      verdictLabel: VERDICT_LABELS[finalVerdictCode] || finalVerdict,
       passedCount,
       totalCount: testcases.length,
       averageRuntimeMs: avgRuntime,
@@ -162,6 +206,8 @@ async function evaluateSubmission(job, onProgress) {
 }
 
 module.exports = {
+  VERDICT_CODES,
+  VERDICT_LABELS,
   evaluateSubmission,
   normalizeOutput
 };

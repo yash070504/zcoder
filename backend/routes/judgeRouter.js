@@ -31,6 +31,8 @@ judgeQueue.setWorkerExecutor(async (job, onProgress) => {
         language: job.language,
         sourceCode: job.sourceCode,
         verdict: result.verdict,
+        verdictCode: result.verdictCode,
+        verdictLabel: result.verdictLabel,
         passedTestCases: result.passedCount,
         totalTestCases: result.totalCount,
         runtimeMs: result.averageRuntimeMs || 0,
@@ -49,7 +51,7 @@ judgeQueue.setWorkerExecutor(async (job, onProgress) => {
  * Run sample testcases asynchronously
  */
 router.post("/run", executionLimiter, async (req, res) => {
-  const { language = "javascript", sourceCode = "", testcases = [] } = req.body;
+  const { language = "javascript", sourceCode = "", testcases = [], timeLimitMs } = req.body;
 
   if (!sourceCode) {
     return res.status(400).json({ error: "Source code is required" });
@@ -59,6 +61,7 @@ router.post("/run", executionLimiter, async (req, res) => {
     language,
     sourceCode,
     testcases: testcases.length > 0 ? testcases : [{ input: "", expectedOutput: "" }],
+    timeLimitMs: timeLimitMs || 4000,
     isSubmission: false
   });
 
@@ -74,39 +77,47 @@ router.post("/run", executionLimiter, async (req, res) => {
  * Submit solution against official test cases
  */
 router.post("/submit", executionLimiter, async (req, res) => {
-  const { problemId, language = "javascript", sourceCode = "", userId = "anonymous" } = req.body;
+  const { problemId, language = "javascript", sourceCode = "", userId = "anonymous", testcases: directCases } = req.body;
 
   if (!sourceCode) {
     return res.status(400).json({ error: "Source code is required" });
   }
 
   let testcases = [];
+  let problemTimeLimitMs = 4000;
+
   if (problemId) {
     try {
       const problem = await Promblem.findById(problemId);
       if (problem) {
+        problemTimeLimitMs = problem.timeLimitMs || 4000;
+
         // Combine sample testcases + hidden testcases
         const samples = (problem.sampleTestCases || []).map((tc) => ({
           input: tc.input,
           expectedOutput: tc.expectedOutput,
-          isHidden: false
+          isHidden: false,
+          timeoutMs: problemTimeLimitMs
         }));
         const hiddens = (problem.hiddenTestCases || []).map((tc) => ({
           input: tc.input,
           expectedOutput: tc.expectedOutput,
-          isHidden: true
+          isHidden: true,
+          timeoutMs: problemTimeLimitMs
         }));
 
         testcases = [...samples, ...hiddens];
 
         // Fallback to legacy string testcase if structured cases are empty
         if (testcases.length === 0 && problem.testcase) {
-          testcases = [{ input: problem.testcase, expectedOutput: "", isHidden: false }];
+          testcases = [{ input: problem.testcase, expectedOutput: "", isHidden: false, timeoutMs: problemTimeLimitMs }];
         }
       }
     } catch (err) {
       console.error("Error fetching problem for submission:", err.message);
     }
+  } else if (Array.isArray(directCases) && directCases.length > 0) {
+    testcases = directCases;
   }
 
   const job = judgeQueue.enqueue({
@@ -115,6 +126,7 @@ router.post("/submit", executionLimiter, async (req, res) => {
     language,
     sourceCode,
     testcases,
+    timeLimitMs: problemTimeLimitMs,
     isSubmission: true
   });
 

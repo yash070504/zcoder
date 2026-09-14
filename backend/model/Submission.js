@@ -40,6 +40,15 @@ const submissionSchema = new mongoose.Schema(
       ],
       default: "QUEUED"
     },
+    verdictCode: {
+      type: String,
+      enum: ["AC", "WA", "TLE", "MLE", "CE", "RE", "SV", "QUEUED", "PROCESSING", "PENDING"],
+      default: "PENDING"
+    },
+    verdictLabel: {
+      type: String,
+      default: "Pending"
+    },
     passedTestCases: {
       type: Number,
       default: 0
@@ -61,6 +70,8 @@ const submissionSchema = new mongoose.Schema(
         testCaseIndex: Number,
         isHidden: Boolean,
         verdict: String,
+        verdictCode: String,
+        verdictLabel: String,
         executionTimeMs: Number,
         input: String,
         expectedOutput: String,

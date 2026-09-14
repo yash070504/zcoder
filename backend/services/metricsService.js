@@ -32,8 +32,17 @@ class MetricsService {
 
   recordVerdict(verdict) {
     this.submissionsTotal++;
-    if (this.verdictsTotal[verdict] !== undefined) {
-      this.verdictsTotal[verdict]++;
+    const codeMap = {
+      AC: "ACCEPTED",
+      WA: "WRONG_ANSWER",
+      TLE: "TIME_LIMIT_EXCEEDED",
+      CE: "COMPILATION_ERROR",
+      RE: "RUNTIME_ERROR",
+      SV: "SECURITY_VIOLATION"
+    };
+    const key = codeMap[verdict] || verdict;
+    if (this.verdictsTotal[key] !== undefined) {
+      this.verdictsTotal[key]++;
     }
   }
 
