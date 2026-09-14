@@ -56,12 +56,13 @@ const Output = ({ editorRef, language, runTrigger, problemTitle = "Algorithmic C
         setJudgeStep(null);
 
         if (judgeResult.verdict === "ACCEPTED") {
-          setOutput(["[Verdict: ACCEPTED]", judgeResult.testcaseResults?.[0]?.actualOutput || "(Success with no output)"]);
+          const rawOut = judgeResult.testcaseResults?.[0]?.actualOutput;
+          setOutput(rawOut ? rawOut.split("\n") : ["(Code executed successfully with no output)"]);
           setIsError(false);
         } else {
           setIsError(true);
           const failMsg = judgeResult.compileError || judgeResult.details || judgeResult.testcaseResults?.[0]?.stderr || `Verdict: ${judgeResult.verdict}`;
-          setOutput([`[Verdict: ${judgeResult.verdict}]`, failMsg]);
+          setOutput(failMsg.split("\n"));
         }
       } catch (asyncErr) {
         // Fallback to legacy endpoint if judge queue encounters an issue
