@@ -1,6 +1,19 @@
+// ═══════════════════════════════════════════════════════════
+// verifyJWT.js — Middleware to protect private API routes
+// Usage: add it BEFORE any route handler you want to protect
+//   e.g. router.get("/", verifyJWT, getAllUser)
+//
+// How it works:
+//   1. Looks for a Bearer token in the Authorization header
+//   2. Falls back to checking the 'jwt' cookie if no header token
+//   3. Verifies the token using ACCESS_SECRET
+//   4. If valid → attaches username to req.user and calls next()
+//   5. If invalid → returns 401 (no token) or 403 (bad token)
+// ═══════════════════════════════════════════════════════════
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
+// These must match the secrets used in authControrller.js when signing tokens
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET || 'yashkumar070504';
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET || process.env.ACCESS_TOKEN_SECRET || 'yashkumar070504';
 
