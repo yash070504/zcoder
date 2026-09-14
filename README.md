@@ -9,14 +9,16 @@
 [![Node.js](https://img.shields.io/badge/Node.js%20LTS-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://socket.io/)
 [![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-764ABC?style=for-the-badge&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 [![Monaco Editor](https://img.shields.io/badge/Monaco%20Editor-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://microsoft.github.io/monaco-editor/)
 
 <p align="center">
-  <b>A state-of-the-art developer platform combining real-time code execution, LeetCode-style problem solving, interactive community discussions, and a multi-platform contest tracker.</b>
+  <b>A production-grade, distributed competitive programming arena featuring an asynchronous micro-judge execution pipeline, sandbox resource isolation, LeetCode verdict engine, AI architectural Big-O analysis, and Prometheus telemetry.</b>
 </p>
 
-[Explore Features](#-key-features) • [Quick Start](#-quick-start) • [Architecture](#-system-architecture) • [API Reference](#-api-endpoints) • [Contributing](#-contributing)
+[Explore Features](#-key-features) • [Quick Start](#-quick-start) • [SDE-2 Architecture](#-system-architecture) • [API Reference](#-api-endpoints) • [Contributing](#-contributing)
 
 </div>
 
@@ -24,11 +26,64 @@
 
 ## 🌟 Overview
 
-**ZCoder** is an all-in-one ecosystem designed for competitive programmers, interview candidates, and software engineers. Built with a sleek dark glassmorphic design system, ZCoder brings together in-browser multi-language compilation, algorithmic challenge authoring, live-synchronized developer discussions, and global contest calendars into a unified, high-performance experience.
+**ZCoder** is an enterprise-ready developer platform designed with SDE-2 distributed architecture principles. It decouples high-volume HTTP ingress from compute-intensive code execution via an asynchronous job queue and worker pool, secures arbitrary untrusted code execution using an isolated sandbox with wall-clock process-tree timeouts and memory capping, evaluates complex multi-case submissions with a LeetCode-style verdict engine (`AC`, `WA`, `TLE`, `MLE`, `CE`, `RE`), and provides Socratic algorithmic mentoring and Prometheus metrics out of the box.
+
+---
+
+## 🏗️ SDE-2 High-Availability & Distributed Architecture
+
+```
+[ Frontend: Monaco Editor ]
+          │  (HTTP POST /api/judge/run or /submit)
+          ▼
+[ Rate Limiting Tier: Sliding Window Token-Bucket (20 req/min) ]
+          │
+          ▼
+[ API Gateway: Express Ingress ] ── (202 Accepted + Submission ID) ──► [ Client ]
+          │                                                                ▲
+          ▼ (Enqueue Job)                                                  │ (Live WebSockets)
+[ Async Judge Queue Engine ]                                               │ `judge:<submissionId>`
+          │                                                                │
+          ▼ (Worker Pool Concurrency Limit = 4)                            │
+[ Resource-Isolated Sandbox Runner ] ──────────────────────────────────────┘
+   • Process Tree Termination (taskkill / SIGKILL)
+   • Max Output Buffer Capping (512 KB)
+   • 4000ms Wall-Clock Timeout
+   • Security Scanner Pre-flight (RCE prevention)
+          │
+          ▼
+[ LeetCode Verdict & Grading Pipeline ]
+   • Sample Test Cases vs Hidden Test Cases
+   • Output Normalization & Diff Analysis
+   • Verdicts: AC, WA, TLE, RE, CE, SV
+   • Persisted in MongoDB Submissions Collection
+          │
+          ▼
+[ Observability & Telemetry Exporter ]
+   • GET /metrics (Prometheus Format: queue depth, worker count, verdicts)
+   • GET /health (Uptime, DB states, live judge queue backlog)
+```
 
 ---
 
 ## ✨ Key Features
+
+### ⚡ 0. Asynchronous Micro-Judge & Sandboxed Worker Pipeline (SDE-2 Core)
+- **Decoupled Job Producer & Consumer**: Returns `202 Accepted` immediately with zero HTTP event loop starvation.
+- **Process Tree Containment**: Prevents zombie/orphaned processes on infinite loops (`while(1)`) using OS process-tree termination.
+- **Buffer Overflow Protection**: Capped at 512KB to protect host memory from stdout flooding attacks.
+- **Pre-Flight AST & Security Scan**: Blocks unauthorized child process spawns, shell commands, and destructive filesystem calls.
+- **Real-Time WebSocket Streaming**: Dispatches live execution lifecycle updates (`QUEUED` ➔ `PREPARING` ➔ `COMPILING` ➔ `RUNNING_TESTCASES` ➔ `VERDICT_READY`).
+
+### 🤖 1. AI Architectural Assistant & Socratic Post-Mortem Analyzer
+- **Static & LLM Big-O Analysis**: Evaluates time complexity ($O(1)$, $O(N)$, $O(N \log N)$, $O(N^2)$, $O(N^3)$) and space complexity.
+- **Algorithmic Bottleneck Identification**: Automatically highlights nested loops, hidden $O(N)$ array shifts, and scaling risks.
+- **Socratic Guidance**: Provides non-spoiling progressive hints for failing testcases without revealing the complete solution.
+
+### 📊 2. Production Observability & Sliding Window Rate Limiting
+- **Prometheus Telemetry Endpoint (`/metrics`)**: Exposes request counts, judge queue backlog, active worker counts, and verdict totals.
+- **Sliding Window Rate Limiter**: Independent rate buckets protecting compute-heavy judge endpoints from distributed denial of service.
+- **Read-Through Caching Layer**: In-memory and Redis-ready caching service with automated eviction.
 
 ### ⚡ 1. Cybernetic Arena Command Center (Dashboard)
 - **Dynamic Coder HUD**: Displays user avatar with live online status, customizable rank tiers (e.g. `Level 5 Coder`), and active streak counters (`🔥 5-Day Streak`, `1,480 Elo`).
