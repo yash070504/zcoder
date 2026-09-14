@@ -109,13 +109,14 @@ async function evaluateSubmission(job, onProgress) {
 
       let tcVerdict = "ACCEPTED";
       let actual = normalizeOutput(tcRun.stdout);
-      let expected = normalizeOutput(tc.expectedOutput || "");
+      const hasExpected = tc.expectedOutput !== undefined && tc.expectedOutput !== null && tc.expectedOutput !== "";
+      let expected = hasExpected ? normalizeOutput(tc.expectedOutput) : null;
 
       if (tcRun.status === "TIME_LIMIT_EXCEEDED") {
         tcVerdict = "TIME_LIMIT_EXCEEDED";
       } else if (tcRun.status === "RUNTIME_ERROR" || tcRun.status === "EXECUTION_ERROR") {
         tcVerdict = "RUNTIME_ERROR";
-      } else if (actual !== expected) {
+      } else if (hasExpected && actual !== expected) {
         tcVerdict = "WRONG_ANSWER";
       }
 
@@ -125,7 +126,7 @@ async function evaluateSubmission(job, onProgress) {
         verdict: tcVerdict,
         executionTimeMs: tcRun.executionTimeMs,
         input: tc.isHidden ? "[Hidden]" : tc.input,
-        expectedOutput: tc.isHidden ? "[Hidden]" : tc.expectedOutput,
+        expectedOutput: tc.isHidden ? "[Hidden]" : (hasExpected ? tc.expectedOutput : "(Playground execution)"),
         actualOutput: tc.isHidden && tcVerdict === "WRONG_ANSWER" ? "[Hidden]" : actual,
         stderr: tcRun.stderr || null
       };
